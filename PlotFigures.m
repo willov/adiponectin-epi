@@ -86,25 +86,6 @@ elseif choice == 3 % Prediction
         fprintf('Peak, Inhib60: %.2f\n',max(boundry60{k,'Max'}));
         fprintf('Peak down, 30: %.2f\n',(1-max(boundry30{k,'Max'})/max(boundry{k,'Max'}))*100);
         fprintf('Peak down, 60: %.2f\n',(1-max(boundry60{k,'Max'})/max(boundry{k,'Max'}))*100);
-        
-        time=boundry{'Time','Max'};
-        t5Ind=find(time==5*60);
-        maxval=boundry{k,'Max'};
-        minval=boundry{k,'Min'};
-        fprintf('AUC, Normal: %.2f\n',trapz(time,maxval)- trapz(time,minval));
-        fprintf('AUC-t5, Normal: %.2f\n',trapz(time(1:t5Ind),maxval(1:t5Ind))- trapz(time(1:t5Ind),minval(1:t5Ind)));
-        
-        time=boundry30{'Time','Max'};
-        maxval=boundry30{k,'Max'};
-        minval=boundry30{k,'Min'};
-        fprintf('AUC, Inhib30: %.2f\n',trapz(time,maxval)- trapz(time,minval));
-        fprintf('AUC-t5, Inhib30: %.2f\n',trapz(time(1:t5Ind),maxval(1:t5Ind))- trapz(time(1:t5Ind),minval(1:t5Ind)));
-        
-        time=boundry60{'Time','Max'};
-        maxval=boundry60{k,'Max'};
-        minval=boundry60{k,'Min'};
-        fprintf('AUC, Inhib60: %.2f\n',trapz(time,maxval)- trapz(time,minval));
-        fprintf('AUC-t5, Inhib60: %.2f\n',trapz(time(1:t5Ind),maxval(1:t5Ind))- trapz(time(1:t5Ind),minval(1:t5Ind)));   
     end
     
     load('fig5a-data.mat')
@@ -116,7 +97,7 @@ elseif choice == 3 % Prediction
     b.CData=[1 1 1; 1 1 1; 0.2 0.2  0.2; 0.2 0.2 0.2];
     errorbar([1 2 3 4],siRNA{'Mean',:},siRNA{'SEM',:},'marker','none','linestyle','none','color','k');
     set(gca, 'xticklabel', {'Control','Adr', 'Control','Adr'})
-    set(gca, 'ytick',[0 1 2],'box','off')
+    set(gca, 'ytick',[0 0.5e-4 1e-4],'box','off')
 end
 
 cd('..')
