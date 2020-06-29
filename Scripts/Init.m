@@ -7,7 +7,7 @@ end
 
 addpath(genpath('./Support'))
 addpath('../Results');
-% IQMmakeMEXmodel(IQMmodel([modelName '.txt']))
+IQMmakeMEXmodel(IQMmodel([modelName '.txt']))
 %% Loading data-sets, to be used in objective function/Plotting
 
 load expData
