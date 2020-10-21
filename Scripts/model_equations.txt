@@ -65,7 +65,7 @@ k3=1
 Vpip=1
 Vcell=1
 
-ADR=1
+EPI=1
 CL=5
 xpipette=1
 
@@ -80,7 +80,7 @@ vPip_cAMP = kdiffPipcAMP*(pipcAMP - cAMP)*xpipette
 vPip_Ca = kdiffPipCa*(pipCa - Ca)*xpipette
 vPip_ATP = kdiffPipATP*(pipATP - ATP)*xpipette
 
-vBeta_Bact  = kBetaBact*Beta*(ADR + kCL*CL )
+vBeta_Bact  = kBetaBact*Beta*(EPI + kCL*CL )
 vBact_Beta2 = Bact*k2
 vBeta2_Beta = k1*Beta2
 
