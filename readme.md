@@ -5,7 +5,7 @@ To run the scripts, MATLAB 2018b or newer is necessary (for the function `sgtitl
 
 Below is a list of the scripts and what they do. 
 #### PlotFigures
-Used to generate the figures in the paper. Some postprocessing was done in illustrator. 
+Used to generate the figures in the paper. Some postprocessing was done manually in illustrator. 
 
 #### RunOptimization and RunOptimizationPred
 A top level script used to run multiple parameter estimations in parallel. 
@@ -25,8 +25,8 @@ A function used to simulate corresponding biological experiments.
 #### SimulateSteadyState
 A function use to simulate steady state before the experiment is started. 
 
-#### adr_end.txt
-The actual model file being used. All model equations are contained in this file.
+#### model_equations.txt
+The file containing the model equations. Note that the model name (when compiled and used in the scripts) are `adr_endo`.
 
-#### expData
-A MATLAB file containing the experimental data. 
+#### expData, fig5a-data, fig5e-data
+MATLAB files containing the experimental data. 
