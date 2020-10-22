@@ -1,6 +1,6 @@
 
 %% Setup things
-close all
+% close all
 
 cd('Scripts')
 
@@ -44,11 +44,14 @@ if choice ~=5
         params=nan(nFiles,length(bestparam));
         for p=1:nFiles
             load([files(p).folder '/' files(p).name]);
-             if round(costFun(optParam)*1e4)<=round((bestCost+chi2inv(0.95,1))*1e4)
+            if round(costFun(optParam)*1e4)<=round((bestCost+chi2inv(0.95,1))*1e4)
                 params(p,:)=optParam;
-             else
-                 disp('ERROR!!')
-              end
+            elseif round(costFun(optParam))<=round((bestCost+chi2inv(0.95,1)))
+                params(p,:)=optParam;
+                disp('This parameter set is above the limit, likely due to numerical differences in the simulation')
+            else
+                disp('ERROR!!')
+            end
             fprintf('Done loading %i of %i files\n',p,nFiles)
         end
         params(~any(~isnan(params),2),:)=[]; % Removes dummy parameter sets
@@ -74,11 +77,10 @@ elseif choice == 3 % Prediction
     [boundry, bestSim] = MinMax(model, params, bestparam, expData, exoExperiments);
     boundry30 = MinMax(model, params, bestparam, expData, exoExperiments, 0.3);
     boundry60 = MinMax(model, params, bestparam, expData, exoExperiments, 0.6);
-    
     for k = 1:length(exoExperiments.Properties.RowNames)
-        subplot(2,2,k+1), Plot_Subplot(boundry, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [])
-        subplot(2,2,k+1), Plot_Subplot(boundry30, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [66, 194, 245]/255)
-        subplot(2,2,k+1), Plot_Subplot(boundry60, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [0 0 1])
+        subplot(3,2,k+1), Plot_Subplot(boundry, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [])
+        subplot(3,2,k+1), hold on, Plot_Subplot(boundry30, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [66, 194, 245]/255)
+        subplot(3,2,k+1), hold on, Plot_Subplot(boundry60, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [0 0 1])
         axis([0 12 0 24.66])
         fprintf('----%s----\n',exoExperiments.Properties.RowNames{k})
         fprintf('Peak, Normal: %.2f\n',max(boundry{k,'Max'}));
@@ -89,15 +91,31 @@ elseif choice == 3 % Prediction
     end
     
     load('fig5a-data.mat')
-    subplot(2,2,1)
+    subplot(3,2,1)
     b=bar([1 2 3 4],siRNA{'Mean',:});
     hold on
     
     b.FaceColor = 'flat';
-    b.CData=[1 1 1; 1 1 1; 0.2 0.2  0.2; 0.2 0.2 0.2];
+    b.CData=[242 166 0; 242 166 0; 0 134 255; 0 134 255]/255;
     errorbar([1 2 3 4],siRNA{'Mean',:},siRNA{'SEM',:},'marker','none','linestyle','none','color','k');
-    set(gca, 'xticklabel', {'Control','Adr', 'Control','Adr'})
+    set(gca, 'xticklabel', {'Control','Adrenalin', 'Control','Adrenalin'}, 'XTickLabelRotation', 20)
     set(gca, 'ytick',[0 0.5e-4 1e-4],'box','off')
+    ylabel({'Adiponectin release'; '(μg/g protein)'})
+    
+    load('fig5e-data.mat')
+    subplot(3,2,k+2)
+    b=bar([1 2 3 4],release_iono{'Mean',:});
+    hold on
+    
+    b.FaceColor = 'flat';
+    b.CData=[242 166 0; 242 166 0; 242 166 0; 242 166 0]/255;
+    errorbar([1 2 3 4],release_iono{'Mean',:},release_iono{'SEM',:},'marker','none','linestyle','none','color','k');
+    set(gca, 'xticklabel', {'Control','FSK/IBMX', 'Iono.','FSK/IBMX/Iono.'}, 'XTickLabelRotation', 25)
+    set(gca, 'ytick',[1 3 5],'box','off')
+        ylabel({'Adiponectin release'; '(fold increase)'})
+
+    
+    set(gcf,'Position',[1000 676 560 662])
 end
 
 cd('..')

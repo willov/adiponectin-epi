@@ -15,7 +15,7 @@ SSstartGuess=[SSstartGuess      0       0     0         ];
 if nargin > 3 && ~isempty(betaReduction)
    states=IQMstates(model);
    ic=IQMinitialconditions(model);
-   ic(strcmp(states,'Beta'))=ic(strcmp(states,'Beta'))*(1-betaReduction);
+   ic(strcmp(states,'B'))=ic(strcmp(states,'B'))*(1-betaReduction);
 else
     ic=[];
 end
