@@ -19,10 +19,10 @@ if ~exist(folder,'dir')
     mkdir(folder)
 end
     
-models=dir('*.txt');
+models=dir('../*.txt');
 
 for i =1:length(models)
-    IQMmakeMEXmodel(IQMmodel(models(i).name))
+    IQMmakeMEXmodel(IQMmodel([models(1).folder '/' models(i).name]))
 
 end
 end
