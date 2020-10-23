@@ -98,8 +98,8 @@ elseif choice == 3 % Prediction
     b.FaceColor = 'flat';
     b.CData=[242 166 0; 242 166 0; 0 134 255; 0 134 255]/255;
     errorbar([1 2 3 4],siRNA{'Mean',:},siRNA{'SEM',:},'marker','none','linestyle','none','color','k');
-    set(gca, 'xticklabel', {'Control','Adrenalin', 'Control','Adrenalin'}, 'XTickLabelRotation', 20)
-    set(gca, 'ytick',[0 0.5e-4 1e-4],'box','off')
+    set(gca, 'xticklabel', {'Control','EPI', 'Control','EPI'}, 'XTickLabelRotation', 0)
+    set(gca, 'ytick',[0 50 100],'box','off')
     ylabel({'Adiponectin release'; '(μg/g protein)'})
     
     load('fig5e-data.mat')
@@ -112,10 +112,9 @@ elseif choice == 3 % Prediction
     errorbar([1 2 3 4],release_iono{'Mean',:},release_iono{'SEM',:},'marker','none','linestyle','none','color','k');
     set(gca, 'xticklabel', {'Control','FSK/IBMX', 'Iono.','FSK/IBMX/Iono.'}, 'XTickLabelRotation', 25)
     set(gca, 'ytick',[1 3 5],'box','off')
-        ylabel({'Adiponectin release'; '(fold increase)'})
-
+    ylabel({'Adiponectin release'; '(fold increase)'})
     
-    set(gcf,'Position',[1000 676 560 662])
+    set(gcf,'Position',[554 358 906 765]) %[1000 676 560 662]
 end
 
 cd('..')
