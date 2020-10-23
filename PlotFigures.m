@@ -96,7 +96,7 @@ elseif choice == 3 % Prediction
     hold on
     
     b.FaceColor = 'flat';
-    b.CData=[242 166 0; 242 166 0; 0 134 255; 0 134 255]/255;
+    b.CData=[207 207 207; 207 207 207; 77 77 77; 77 77 77]/255;
     errorbar([1 2 3 4],siRNA{'Mean',:},siRNA{'SEM',:},'marker','none','linestyle','none','color','k');
     set(gca, 'xticklabel', {'Control','EPI', 'Control','EPI'}, 'XTickLabelRotation', 0)
     set(gca, 'ytick',[0 50 100],'box','off')
@@ -108,7 +108,7 @@ elseif choice == 3 % Prediction
     hold on
     
     b.FaceColor = 'flat';
-    b.CData=[242 166 0; 242 166 0; 242 166 0; 242 166 0]/255;
+    b.CData=[207 207 207; 207 207 207; 207 207 207; 207 207 207]/255;
     errorbar([1 2 3 4],release_iono{'Mean',:},release_iono{'SEM',:},'marker','none','linestyle','none','color','k');
     set(gca, 'xticklabel', {'Control','FSK/IBMX', 'Iono.','FSK/IBMX/Iono.'}, 'XTickLabelRotation', 25)
     set(gca, 'ytick',[1 3 5],'box','off')
