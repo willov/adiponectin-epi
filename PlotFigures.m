@@ -115,6 +115,43 @@ elseif choice == 3 % Prediction
     ylabel({'Adiponectin release'; '(fold increase)'})
     
     set(gcf,'Position',[554 358 906 765]) %[1000 676 560 662]
+elseif choice==4
+    
+    mechanismExperiments=experiments({'EPI_ATP', 'CL_ATP', 'CL_Ca', 'noCa_ATP'},:);
+    [boundry, bestSim] = MinMax(model, params, bestparam, expData, mechanismExperiments);
+    figure(4)
+    m=size(boundry.MaxStates,3);
+    n=size(boundry.MaxStates,1)-1;
+    k=1;
+    stateNames=IQMstates(model);
+    stateNames=stateNames(ismember(stateNames,{'Bact','cAMP','Rel','PM','Endo'}));
+    boundry.MaxStates(abs(boundry.MaxStates)<1e-16)=0;
+    boundry.MinStates(abs(boundry.MinStates)<1e-16)=0;
+    
+    for i = 1:m
+        for j=1:n
+            subplot(m,n,k)
+            
+            plot(boundry{'Time','Max'}, boundry.MaxStates(j,:,i))
+            hold on
+            plot(boundry{'Time','Max'}, boundry.MinStates(j,:,i))
+            
+            
+            fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
+           [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .5 .5 .5])
+            
+            if i == 1
+                title(boundry.Properties.RowNames{j},'Interpreter','none')
+            end
+            if j==1
+                ylabel(stateNames{i})
+            end
+            
+            k=k+1;
+        end
+    end
+    
+    
 end
 
 cd('..')
@@ -233,11 +270,18 @@ for i = 1 : size(params,1)
         if i == 1
             minValues=sim.Measures;
             maxValues=minValues;
+            
+            minValuesStates=sim.States;
+            maxValuesStates=minValuesStates;
         end
         if maxcAMP<inf
             sim_values=sim.Measures;
             minValues(minValues>sim_values)=sim_values(minValues>sim_values);
             maxValues(maxValues<sim_values)=sim_values(maxValues<sim_values);
+            
+            sim_valuesStates=sim.States;
+            minValuesStates(minValuesStates>sim_valuesStates)=sim_valuesStates(minValuesStates>sim_valuesStates);
+            maxValuesStates(maxValuesStates<sim_valuesStates)=sim_valuesStates(maxValuesStates<sim_valuesStates);
         end
         
     catch err
@@ -245,5 +289,5 @@ for i = 1 : size(params,1)
     end
     fprintf('Done with %i of %i parameter sets\n',i,size(params,1))
 end
-boundry=table(maxValues, minValues,'VariableNames',{'Max','Min'},'RowNames',sim.Properties.RowNames);
+boundry=table(maxValues, minValues,maxValuesStates, minValuesStates, 'VariableNames',{'Max','Min','MaxStates','MinStates'},'RowNames',sim.Properties.RowNames);
 end

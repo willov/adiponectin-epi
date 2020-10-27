@@ -28,22 +28,25 @@ scaleExp={'Ca_ATP','Ca_noATP','noCa_ATP','noCa_noATP'};
 scaleTime=unique(expData{'Time',scaleExp});
 simTimes=unique([0 times scaleTime]);
 
-
+stateNames=IQMstates(model);
 ic(end-2:end)=[];
-ic(ismember(IQMstates(model),'Adiponectin'))=0;% Adiponection release is set to zero.
+ic(ismember(stateNames,'Adiponectin'))=0;% Adiponection release is set to zero.
 
 simulations=[];
 simulatedExperiments=table(nan(height(experiments),length(simTimes)),'VariableNames',{'Measures'},'RowNames',experiments.Properties.RowNames);
 simulatedExperiments.PeakTime=nan(height(simulatedExperiments),1);
 maxcAMP=-1;
-cAMPInd=strcmp(IQMstates(model),'cAMP');
+cAMPInd=strcmp(stateNames,'cAMP');
+statesInd=ismember(stateNames,{'Bact','cAMP','Rel','PM','Endo'});
 %% Simulate experiments
+    simulatedExperiments.States=nan(height(experiments), length(times), sum(statesInd));
 
 for i=1:height(experiments)
     sim=model(simTimes,[ic experiments{i,'Pipette'}], [param experiments{i,'Agonist'}  1]);
     maxcAMP=max([maxcAMP; sim.statevalues(:,cAMPInd)]);
     simulations=[simulations sim]; % Collect the full simulation structure, but only for the time points requested.
     simulatedExperiments{i,'Measures'}=simulations(end).variablevalues(:,1)';
+    simulatedExperiments{i,'States'}=reshape(sim.statevalues(:,statesInd), 1, length(times), sum(statesInd));
     simulatedExperiments.PeakTime(i)=sim.time(find(sim.variablevalues(:,1)==max(sim.variablevalues(:,1)),1))/60;
 end
 
@@ -66,7 +69,7 @@ simulatedExperiments{:,'Measures'}=simulatedExperiments{:,'Measures'}.*scale;
 
 %% Setup final output. 
 
-simulatedExperiments(end+1,:)={simulations(end).time nan};
+simulatedExperiments(end+1,:)={simulations(end).time nan nan(1, length(times), sum(statesInd))};
 simulatedExperiments.Properties.RowNames{end}='Time';
 tInd=ismember(simTimes,times);
 simulatedExperiments.Measures(:,~tInd)=[]; %Removes extra timepoints only used for scaling.
