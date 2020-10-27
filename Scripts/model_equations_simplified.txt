@@ -13,8 +13,8 @@ d/dt(ATP) = kDiffATP*(pipATP - ATP)*pip - kdegATP*ATP
 d/dt(cAMP) = Bact*k3- kdegcAMP*cAMP + kDiffcAMP*(pipcAMP - cAMP)*pip 
 
 d/dt(Res) = 0
-d/dt(Rel)= vRes_Rel - vRel_Exo + krel*Exo
-d/dt(Exo)= vRel_Exo - krel*Exo - kexo*Exo
+d/dt(Rel)= vRes_Rel - vRel_PM + krel*PM
+d/dt(PM)= vRel_PM - krel*PM - kexo*PM
 d/dt(Endo)=kCacAMP*cAMP*Ca-kEndo*Endo
 
 d/dt(pipCa) = - kDiffCa*(pipCa - Ca)*pip*Vcell/Vpip
@@ -31,7 +31,7 @@ cAMP(0)= 0
 
 Res(0)= 99
 Rel(0)= 1
-Exo(0)= 0
+PM(0)= 0
 Endo(0)=0
 
 pipCa(0)=0
@@ -72,15 +72,15 @@ pip=1
 
 ********** MODEL VARIABLES
 % Measurement variables
-u=Exo*kexo-kEndo*Endo
+u=PM*kexo-kEndo*Endo
 uEndo = kEndo*Endo
-uExo  = Exo*kexo
+uExo  = PM*kexo
 
 ********** MODEL REACTIONS
 
 vRes_Rel= ((Ca/(km+Ca))*(kCa2+kATP2*ATP))*Res
-vRel_Exo= cAMP*(kcAMP + (Ca/(km+Ca))*ATP*kCaATP)*Rel
-kexo*Exo= kexo*Exo
+vRel_PM= cAMP*(kcAMP + (Ca/(km+Ca))*ATP*kCaATP)*Rel
+kexo*PM= kexo*PM
 
 kEndo*Endo = kEndo*Endo
 
