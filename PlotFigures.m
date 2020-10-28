@@ -119,8 +119,9 @@ elseif choice==4
     
     mechanismExperiments=experiments({'EPI_ATP', 'CL_ATP', 'CL_Ca', 'noCa_ATP'},:);
     [boundry, bestSim] = MinMax(model, params, bestparam, expData, mechanismExperiments);
+    boundry{'Time','Max'}=boundry{'Time','Max'}/60;
     figure(4)
-    m=size(boundry.MaxStates,3);
+    m=size(boundry.MaxStates,3)+1;
     n=size(boundry.MaxStates,1)-1;
     k=1;
     stateNames=IQMstates(model);
@@ -128,25 +129,35 @@ elseif choice==4
     boundry.MaxStates(abs(boundry.MaxStates)<1e-16)=0;
     boundry.MinStates(abs(boundry.MinStates)<1e-16)=0;
     
-    for i = 1:m
+    for j=1:n
+        subplot(m,n,k)
+        
+        fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
+            [boundry.Max(j,:), fliplr(boundry.Min(j,:))],[0.95,0.65,0])
+        if j==1
+            ylabel('\DeltaC/\Deltat (fF/s)')
+        end
+        title(boundry.Properties.RowNames{j},'Interpreter','none')
+        k=k+1;
+        axis([-.5 12.5 -5 30])
+        box off
+    end
+    
+    for i = 1:m-1
         for j=1:n
             subplot(m,n,k)
-            
-            plot(boundry{'Time','Max'}, boundry.MaxStates(j,:,i))
-            hold on
-            plot(boundry{'Time','Max'}, boundry.MinStates(j,:,i))
-            
-            
             fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
-           [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .5 .5 .5])
+                [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .5 .5 .5])
             
-            if i == 1
-                title(boundry.Properties.RowNames{j},'Interpreter','none')
-            end
             if j==1
                 ylabel(stateNames{i})
             end
+            if i==1
+                ylim([-10 100])
+            end
+           xlim([-.5 12.5])
             
+            box off
             k=k+1;
         end
     end
