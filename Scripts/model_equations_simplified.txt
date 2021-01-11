@@ -8,7 +8,7 @@ d/dt(B) = k1*Bde - kB*B*(EPI + kCL*CL)
 d/dt(Bact) = kB*B*(EPI + kCL*CL) - Bact*k2
 d/dt(Bde)= Bact*k2 - k1*Bde
 
-d/dt(Ca) = kDiffCa*(pipCa - Ca)*pip - kdegCa*Ca 
+d/dt(Ca) = kDiffCa*(pipCa - Ca)*pip - kremCa*Ca 
 d/dt(ATP) = kDiffATP*(pipATP - ATP)*pip - kdegATP*ATP
 d/dt(cAMP) = Bact*k3- kdegcAMP*cAMP + kDiffcAMP*(pipcAMP - cAMP)*pip 
 
@@ -50,7 +50,7 @@ kCacAMP=1
 km=1
 
 kdegcAMP=1
-kdegCa=1
+kremCa=1
 kdegATP=1
 
 kDiffcAMP=1

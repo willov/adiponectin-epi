@@ -7,7 +7,7 @@ d/dt(B) = vBde_B - vB_Bact
 d/dt(Bact) = vB_Bact - vBact_Bde
 d/dt(Bde)= vBact_Bde - vBde_B
 
-d/dt(Ca) = vPip_Ca - vdegCa
+d/dt(Ca) = vPip_Ca - vremCa
 d/dt(ATP) = vPip_ATP - vdegATP
 d/dt(cAMP) = vPip_cAMP + vBactcAMP - vdegcAMP
 
@@ -49,7 +49,7 @@ kCacAMP=1
 km=1
 
 kdegcAMP=1
-kdegCa=1
+kremCa=1
 kdegATP=1
 
 kDiffcAMP=1
@@ -86,7 +86,7 @@ vBde_B = k1*Bde
 
 vBactcAMP = Bact*k3
 vdegcAMP = kdegcAMP*cAMP 
-vdegCa = kdegCa*Ca 
+vremCa = kremCa*Ca 
 vdegATP = kdegATP*ATP 
 
 vRes_Rel= ((Ca/(km+Ca))*(kCa2+kATP2*ATP))*Res
