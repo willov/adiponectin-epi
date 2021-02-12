@@ -30,7 +30,7 @@ stimulus=[...
 experiments=table(stimulus(:,1:3), stimulus(:,4:end), 'VariableNames',{'Pipette','Agonist'},'RowNames',design);
 
 %% Select what to plot
-choice = input('What to Plot?  \n 1. Estimation  \n 2. Validation    \n 3. Prediction  \n Choice: ');
+choice = input('What to Plot?  \n 1. Estimation (Fig 3)  \n 2. Validation (Fig 4)   \n 3. Prediction (Fig 5)   \n 4. Insights (Fig 6)  \n Choice: ');
 
 %% Load parameters
 if choice ~=5
@@ -115,7 +115,7 @@ elseif choice == 3 % Prediction
     ylabel({'Adiponectin release'; '(fold increase)'})
     
     set(gcf,'Position',[554 358 906 765]) %[1000 676 560 662]
-elseif choice==4
+elseif choice==4 % Insight
     
     mechanismExperiments=experiments({'EPI_ATP', 'CL_ATP', 'CL_Ca', 'noCa_ATP'},:);
     [boundry, bestSim] = MinMax(model, params, bestparam, expData, mechanismExperiments);
@@ -125,7 +125,7 @@ elseif choice==4
     n=size(boundry.MaxStates,1)-1;
     k=1;
     stateNames=IQMstates(model);
-    stateNames=stateNames(ismember(stateNames,{'Bact','cAMP','Rel','PM','Endo'}));
+    stateNames=stateNames(ismember(stateNames,{'Bact','cAMP','Rel'}));
     boundry.MaxStates(abs(boundry.MaxStates)<1e-16)=0;
     boundry.MinStates(abs(boundry.MinStates)<1e-16)=0;
     
@@ -139,7 +139,7 @@ elseif choice==4
         end
         title(boundry.Properties.RowNames{j},'Interpreter','none')
         k=k+1;
-        axis([-.5 12.5 -5 30])
+        axis([-.1 12.1 -1 30])
         box off
     end
     
@@ -147,15 +147,19 @@ elseif choice==4
         for j=1:n
             subplot(m,n,k)
             fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
-                [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .5 .5 .5])
+              [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .5 .5 .5])
             
             if j==1
-                ylabel(stateNames{i})
+              ylabel(stateNames{i})
             end
             if i==1
-                ylim([-10 100])
+              ylim([-5 100])
+            elseif i==2
+              ylim([0 0.25])
+            elseif i==3
+              ylim([0 2])
             end
-           xlim([-.5 12.5])
+            xlim([-.1 12.1])
             
             box off
             k=k+1;
