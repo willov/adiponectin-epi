@@ -2,7 +2,7 @@
 
 ********** MODEL NOTES
 Only used for listing the equations in the paper. Not used for simulations. 
-These equations are identical to the other file, only that some 
+These equations are identical to the other files, but here some reactions have been written explicitly in the ODEs. 
 ********** MODEL STATES
 d/dt(B) = k1*Bde - kB*B*(EPI + kCL*CL)
 d/dt(Bact) = kB*B*(EPI + kCL*CL) - Bact*k2
