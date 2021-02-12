@@ -1,6 +1,6 @@
 
 %% Setup things
-close all
+% close all
 
 cd('Scripts')
 
@@ -30,7 +30,7 @@ stimulus=[...
 experiments=table(stimulus(:,1:3), stimulus(:,4:end), 'VariableNames',{'Pipette','Agonist'},'RowNames',design);
 
 %% Select what to plot
-choice = input('What to Plot?  \n 1. Estimation  \n 2. Validation    \n 3. Prediction  \n Choice: ');
+choice = input('What to Plot?  \n 1. Estimation (Fig 3)  \n 2. Validation (Fig 4)   \n 3. Prediction (Fig 5)   \n 4. Insights (Fig 6)  \n Choice: ');
 
 %% Load parameters
 if choice ~=5
@@ -44,11 +44,14 @@ if choice ~=5
         params=nan(nFiles,length(bestparam));
         for p=1:nFiles
             load([files(p).folder '/' files(p).name]);
-             if round(costFun(optParam)*1e4)<=round((bestCost+chi2inv(0.95,1))*1e4)
+            if round(costFun(optParam)*1e4)<=round((bestCost+chi2inv(0.95,1))*1e4)
                 params(p,:)=optParam;
-             else
-                 disp('ERROR!!')
-              end
+            elseif round(costFun(optParam))<=round((bestCost+chi2inv(0.95,1)))
+                params(p,:)=optParam;
+                disp('This parameter set is above the limit, likely due to numerical differences in the simulation')
+            else
+                disp('ERROR!!')
+            end
             fprintf('Done loading %i of %i files\n',p,nFiles)
         end
         params(~any(~isnan(params),2),:)=[]; % Removes dummy parameter sets
@@ -74,11 +77,10 @@ elseif choice == 3 % Prediction
     [boundry, bestSim] = MinMax(model, params, bestparam, expData, exoExperiments);
     boundry30 = MinMax(model, params, bestparam, expData, exoExperiments, 0.3);
     boundry60 = MinMax(model, params, bestparam, expData, exoExperiments, 0.6);
-    
     for k = 1:length(exoExperiments.Properties.RowNames)
-        subplot(2,2,k+1), Plot_Subplot(boundry, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [])
-        subplot(2,2,k+1), Plot_Subplot(boundry30, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [66, 194, 245]/255)
-        subplot(2,2,k+1), Plot_Subplot(boundry60, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [0 0 1])
+        subplot(3,2,k+1), Plot_Subplot(boundry, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [])
+        subplot(3,2,k+1), hold on, Plot_Subplot(boundry30, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [66, 194, 245]/255)
+        subplot(3,2,k+1), hold on, Plot_Subplot(boundry60, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [0 0 1])
         axis([0 12 0 24.66])
         fprintf('----%s----\n',exoExperiments.Properties.RowNames{k})
         fprintf('Peak, Normal: %.2f\n',max(boundry{k,'Max'}));
@@ -89,15 +91,82 @@ elseif choice == 3 % Prediction
     end
     
     load('fig5a-data.mat')
-    subplot(2,2,1)
+    subplot(3,2,1)
     b=bar([1 2 3 4],siRNA{'Mean',:});
     hold on
     
     b.FaceColor = 'flat';
-    b.CData=[1 1 1; 1 1 1; 0.2 0.2  0.2; 0.2 0.2 0.2];
+    b.CData=[207 207 207; 207 207 207; 77 77 77; 77 77 77]/255;
     errorbar([1 2 3 4],siRNA{'Mean',:},siRNA{'SEM',:},'marker','none','linestyle','none','color','k');
-    set(gca, 'xticklabel', {'Control','Adr', 'Control','Adr'})
-    set(gca, 'ytick',[0 0.5e-4 1e-4],'box','off')
+    set(gca, 'xticklabel', {'Control','EPI', 'Control','EPI'}, 'XTickLabelRotation', 0)
+    set(gca, 'ytick',[0 50 100],'box','off')
+    ylabel({'Adiponectin release'; '(μg/g protein)'})
+    
+    load('fig5e-data.mat')
+    subplot(3,2,k+2)
+    b=bar([1 2 3 4],release_iono{'Mean',:});
+    hold on
+    
+    b.FaceColor = 'flat';
+    b.CData=[207 207 207; 207 207 207; 207 207 207; 207 207 207]/255;
+    errorbar([1 2 3 4],release_iono{'Mean',:},release_iono{'SEM',:},'marker','none','linestyle','none','color','k');
+    set(gca, 'xticklabel', {'Control','FSK/IBMX', 'Iono.','FSK/IBMX/Iono.'}, 'XTickLabelRotation', 25)
+    set(gca, 'ytick',[1 3 5],'box','off')
+    ylabel({'Adiponectin release'; '(fold increase)'})
+    
+    set(gcf,'Position',[554 358 906 765]) %[1000 676 560 662]
+elseif choice==4 % Insight
+    
+    mechanismExperiments=experiments({'EPI_ATP', 'CL_ATP', 'CL_Ca', 'noCa_ATP'},:);
+    [boundry, bestSim] = MinMax(model, params, bestparam, expData, mechanismExperiments);
+    boundry{'Time','Max'}=boundry{'Time','Max'}/60;
+    figure(4)
+    m=size(boundry.MaxStates,3)+1;
+    n=size(boundry.MaxStates,1)-1;
+    k=1;
+    stateNames=IQMstates(model);
+    stateNames=stateNames(ismember(stateNames,{'Bact','cAMP','Rel'}));
+    boundry.MaxStates(abs(boundry.MaxStates)<1e-16)=0;
+    boundry.MinStates(abs(boundry.MinStates)<1e-16)=0;
+    
+    for j=1:n
+        subplot(m,n,k)
+        
+        fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
+            [boundry.Max(j,:), fliplr(boundry.Min(j,:))],[0.95,0.65,0])
+        if j==1
+            ylabel('\DeltaC/\Deltat (fF/s)')
+        end
+        title(boundry.Properties.RowNames{j},'Interpreter','none')
+        k=k+1;
+        axis([-.1 12.1 -1 30])
+        box off
+    end
+    
+    for i = 1:m-1
+        for j=1:n
+            subplot(m,n,k)
+            fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
+              [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .5 .5 .5])
+            
+            if j==1
+              ylabel(stateNames{i})
+            end
+            if i==1
+              ylim([-5 100])
+            elseif i==2
+              ylim([0 0.25])
+            elseif i==3
+              ylim([0 2])
+            end
+            xlim([-.1 12.1])
+            
+            box off
+            k=k+1;
+        end
+    end
+    
+    
 end
 
 cd('..')
@@ -216,11 +285,18 @@ for i = 1 : size(params,1)
         if i == 1
             minValues=sim.Measures;
             maxValues=minValues;
+            
+            minValuesStates=sim.States;
+            maxValuesStates=minValuesStates;
         end
         if maxcAMP<inf
             sim_values=sim.Measures;
             minValues(minValues>sim_values)=sim_values(minValues>sim_values);
             maxValues(maxValues<sim_values)=sim_values(maxValues<sim_values);
+            
+            sim_valuesStates=sim.States;
+            minValuesStates(minValuesStates>sim_valuesStates)=sim_valuesStates(minValuesStates>sim_valuesStates);
+            maxValuesStates(maxValuesStates<sim_valuesStates)=sim_valuesStates(maxValuesStates<sim_valuesStates);
         end
         
     catch err
@@ -228,5 +304,5 @@ for i = 1 : size(params,1)
     end
     fprintf('Done with %i of %i parameter sets\n',i,size(params,1))
 end
-boundry=table(maxValues, minValues,'VariableNames',{'Max','Min'},'RowNames',sim.Properties.RowNames);
+boundry=table(maxValues, minValues,maxValuesStates, minValuesStates, 'VariableNames',{'Max','Min','MaxStates','MinStates'},'RowNames',sim.Properties.RowNames);
 end

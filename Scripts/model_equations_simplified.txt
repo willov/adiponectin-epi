@@ -1,0 +1,93 @@
+********** MODEL NAME
+
+********** MODEL NOTES
+Only used for listing the equations in the paper. Not used for simulations. 
+These equations are identical to the other files, but here some reactions have been written explicitly in the ODEs. 
+********** MODEL STATES
+d/dt(B) = k1*Bde - kB*B*(EPI + kCL*CL)
+d/dt(Bact) = kB*B*(EPI + kCL*CL) - Bact*k2
+d/dt(Bde)= Bact*k2 - k1*Bde
+
+d/dt(Ca) = kDiffCa*(pipCa - Ca)*pip - kremCa*Ca 
+d/dt(ATP) = kDiffATP*(pipATP - ATP)*pip - kdegATP*ATP
+d/dt(cAMP) = Bact*k3- kdegcAMP*cAMP + kDiffcAMP*(pipcAMP - cAMP)*pip 
+
+d/dt(Res) = 0
+d/dt(Rel)= vRes_Rel - vRel_PM + krel*PM
+d/dt(PM)= vRel_PM - krel*PM - kexo*PM
+d/dt(Endo)=kCacAMP*cAMP*Ca-kEndo*Endo
+
+d/dt(pipCa) = - kDiffCa*(pipCa - Ca)*pip*Vcell/Vpip
+d/dt(pipATP) = - kDiffATP*(pipATP - ATP)*pip*Vcell/Vpip
+d/dt(pipcAMP) = - kDiffcAMP*(pipcAMP - cAMP)*pip*Vcell/Vpip
+
+B(0)=100
+Bact(0)=0
+Bde(0)=0
+
+Ca(0)= 0
+ATP(0)= 0
+cAMP(0)= 0
+
+Res(0)= 99
+Rel(0)= 1
+PM(0)= 0
+Endo(0)=0
+
+pipCa(0)=0
+pipATP(0)=0
+pipcAMP(0)=0
+
+********** MODEL PARAMETERS
+krel= 1
+kexo= 1
+kCaATP=1
+kcAMP= 1
+kCa2=1
+kATP2=1
+kEndo=1
+kCacAMP=1
+km=1
+
+kdegcAMP=1
+kremCa=1
+kdegATP=1
+
+kDiffcAMP=1
+kDiffCa=1
+kDiffATP=1
+
+kB=1
+kCL=1
+k1=1
+k2=1
+k3=1
+
+Vpip=1
+Vcell=1
+
+EPI=1
+CL=5
+pip=1
+
+********** MODEL VARIABLES
+% Measurement variables
+u=PM*kexo-kEndo*Endo
+uEndo = kEndo*Endo
+uExo  = PM*kexo
+
+********** MODEL REACTIONS
+
+vRes_Rel= ((Ca/(km+Ca))*(kCa2+kATP2*ATP))*Res
+vRel_PM= cAMP*(kcAMP + (Ca/(km+Ca))*ATP*kCaATP)*Rel
+kexo*PM= kexo*PM
+
+kEndo*Endo = kEndo*Endo
+
+
+********** MODEL FUNCTIONS
+
+
+********** MODEL EVENTS
+
+********** MODEL MATLAB FUNCTIONS

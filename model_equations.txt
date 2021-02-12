@@ -1,8 +1,7 @@
 ********** MODEL NAME
 adr_endo
 ********** MODEL NOTES
-This is the file containing the equation for the model.
-This file is identical to the one named "model_equations.txt". 
+
 ********** MODEL STATES
 d/dt(B) = vBde_B - vB_Bact
 d/dt(Bact) = vB_Bact - vBact_Bde
