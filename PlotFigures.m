@@ -25,7 +25,7 @@ stimulus=[...
     0.015          3           0.1     0    0;   %'highCa+ATP'
     0              3           0       5    0;   %'EPI+ATP'
     0              3           0       0    1;   %'CL+ATP'
-    0.0015         3           0       0    1];   %'CL+Ca' 
+    0.0015         3           0       0    1];   %'CL+Ca'
 
 experiments=table(stimulus(:,1:3), stimulus(:,4:end), 'VariableNames',{'Pipette','Agonist'},'RowNames',design);
 
@@ -61,7 +61,7 @@ if choice ~=5
     else
         load([fileDir '/allParams.mat'])
     end
-   
+    
     time=unique(expData{'Time',:});
 end
 %% Get uncertainty and plot
@@ -75,8 +75,8 @@ elseif choice == 2 % Validation
 elseif choice == 3 % Prediction
     exoExperiments=experiments({'EPI_ATP', 'CL_ATP', 'CL_Ca'},:);
     [boundry, bestSim] = MinMax(model, params, bestparam, expData, exoExperiments);
-    boundry30 = MinMax(model, params, bestparam, expData, exoExperiments, 0.3);
-    boundry60 = MinMax(model, params, bestparam, expData, exoExperiments, 0.6);
+    boundry30 = MinMax(model, params, bestparam, expData, exoExperiments, 12*60, 0.3);
+    boundry60 = MinMax(model, params, bestparam, expData, exoExperiments, 12*60, 0.6);
     for k = 1:length(exoExperiments.Properties.RowNames)
         subplot(3,2,k+1), Plot_Subplot(boundry, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [])
         subplot(3,2,k+1), hold on, Plot_Subplot(boundry30, bestSim('Time',:), exoExperiments.Properties.RowNames(k), [], [66, 194, 245]/255)
@@ -118,55 +118,95 @@ elseif choice == 3 % Prediction
 elseif choice==4 % Insight
     
     mechanismExperiments=experiments({'EPI_ATP', 'CL_ATP', 'CL_Ca', 'noCa_ATP'},:);
-    [boundry, bestSim] = MinMax(model, params, bestparam, expData, mechanismExperiments);
+    [boundry, bestSim] = MinMax(model, params, bestparam, expData, mechanismExperiments, 30*60);
     boundry{'Time','Max'}=boundry{'Time','Max'}/60;
     figure(4)
     m=size(boundry.MaxStates,3)+1;
     n=size(boundry.MaxStates,1)-1;
     k=1;
-    stateNames=IQMstates(model);
-    stateNames=stateNames(ismember(stateNames,{'Bact','cAMP','Rel'}));
+    
     boundry.MaxStates(abs(boundry.MaxStates)<1e-16)=0;
     boundry.MinStates(abs(boundry.MinStates)<1e-16)=0;
+    boundry.MaxStates(:,:,2)=  boundry.MaxStates(:,:,2)*1e3;
+    boundry.MinStates(:,:,2)=  boundry.MinStates(:,:,2)*1e3;
     
+    ylabels = {{'\DeltaC/\Deltat','(fF/s)'}, {'Active \beta-receptors','(a.u)'}, {'cAMP increase','over basal (\muM)'}, {'Releasable pool','(a.u)'}, {'Adiponectin release','(fold over CL at t=15)'}};
     for j=1:n
         subplot(m,n,k)
-        
         fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
-            [boundry.Max(j,:), fliplr(boundry.Min(j,:))],[0.95,0.65,0])
-        if j==1
-            ylabel('\DeltaC/\Deltat (fF/s)')
-        end
+            [boundry.Max(j,:), fliplr(boundry.Min(j,:))],[0.95,0.65,0],'EdgeColor',[0.95,0.65,0],'linewidth',2)
         title(boundry.Properties.RowNames{j},'Interpreter','none')
         k=k+1;
-        axis([-.1 12.1 -1 30])
+        axis([-.5 30.5 -1 30])
         box off
+        xlabel('Time (Min)')
     end
+    subplot(m,n,1)
+    ylabel(ylabels{1})
     
     for i = 1:m-1
+        subplot(m,n,k)
+        ylabel(ylabels{i+1})
+        hold on
         for j=1:n
             subplot(m,n,k)
             fill([boundry{'Time','Max'} fliplr(boundry{'Time','Max'})],...
-              [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .5 .5 .5])
+                [boundry.MaxStates(j,:,i), fliplr(boundry.MinStates(j,:,i))],[ .8 .8 .8],'EdgeColor','[ .8 .8 .8]','linewidth',2)
             
-            if j==1
-              ylabel(stateNames{i})
-            end
             if i==1
-              ylim([-5 100])
+                ylim([-5 100])
             elseif i==2
-              ylim([0 0.25])
+                ylim([-1 250])
             elseif i==3
-              ylim([0 2])
+                ylim([-0.1 3.5])
+            elseif i==4 && j~=3
+                ylim([-0.1 1.4])
             end
-            xlim([-.1 12.1])
+            xlim([-.5 30.5])
             
             box off
+            xlabel('Time (Min)')
             k=k+1;
         end
     end
     
+    CLAdi= table([6.09e-5     6.62e-5] , [0 1.24e-5], [15 30],'variablenames',{'MeanValues','SEMValues','Time'});
+    CLAdi{:,1:end-1}=CLAdi{:,1:end-1}/CLAdi.MeanValues(CLAdi.Time==15);
+    subplot(m,n,18)
+    hold on
+    errorbar(CLAdi.Time,CLAdi.MeanValues, CLAdi.SEMValues,'ko','linewidth',2,'MarkerFaceColor','auto')
     
+    u = boundry.MaxStates(1:2,end,2)';
+    l = boundry.MinStates(1:2,end,2)';
+    mu = [2.24e-02, 1.95e-03 ]*1e3;
+    s = [6.72e-04, 5.10e-04 ]*1e3;
+    subplot(m,n,9)
+    hold on
+    errorbar(30, mu(1),s(1),'ko','linewidth',2,'MarkerFaceColor','auto')
+    subplot(m,n,10)
+    hold on
+    errorbar(30, mu(2),s(2),'ko','linewidth',2,'MarkerFaceColor','auto')
+    
+    fprintf('Epi stimuli. Model prediction: %.2f - %.2f, experimental data: %.2f±%.2f\n',l(1), u(1), mu(1),s(1))
+    fprintf('CL  stimuli. Model prediction: %.2f - %.2f, experimental data: %.2f±%.2f\n',l(2), u(2), mu(2),s(2))
+    
+    figure(5)
+    subplot(1,2,1)
+    set(gcf,'OuterPosition',[100,100,500,400])
+    bar(30,mu(1), 'w', 'BarWidth',2)
+    hold on
+    errorbar(30, mu(1),s(1),'ko','linewidth',2,'MarkerFaceColor','auto', 'CapSize',18)
+    title('EPI')
+    set(gca, 'YLimSpec', 'Tight');
+    box off
+    
+    subplot(1,2,2)
+    bar(30,mu(2), 'w','BarWidth',2)
+    hold on
+    errorbar(30, mu(2),s(2),'ko','linewidth',2,'MarkerFaceColor','auto','CapSize',18)
+    title('CL')
+    set(gca, 'YLimSpec', 'Tight');
+    box off
 end
 
 cd('..')
@@ -230,7 +270,7 @@ for e=design
             cost= nansum((expData{'Mean',e}-y(tInd)).^2./expData{'SEM',e}.^2);
             dgf=length(expData{'Mean',e});
             sprintf('Prediction, CL_ATP, Cost: %.1f, dgf: %i, Chi2: %.1f', cost, dgf, chi2inv(0.95, dgf))
-    
+            
             
         otherwise,                figure(extra), extra=extra+1;
     end
@@ -243,8 +283,8 @@ end
 function []=Plot_Subplot(boundry, bestSim,e, data, shadeColor)
 hold on
 if nargin<5 || isempty(shadeColor)
-shadeColor=[0.95,0.65,0];
-alpha=1;
+    shadeColor=[0.95,0.65,0];
+    alpha=1;
 else
     alpha=1;
 end
@@ -272,21 +312,32 @@ box off
 end
 
 %% Estimating uncertainty
-function [ boundry, sim] = MinMax(model, params, bestparam, expData, experiments, betaReduction)
+function [ boundry, sim] = MinMax(model, params, bestparam, expData, experiments, tend, betaReduction)
 if nargin<6
+    tend=60*12;
+end
+if nargin<7
     betaReduction=[];
 end
 params=[params; bestparam];
 for i = 1 : size(params,1)
     try
         intialconditions = SimulateSteadyState(params(i,:), model, 10000, betaReduction);
-        [sim,~,~, maxcAMP]=SimulateExperiments(params(i,:), 0:1:720, intialconditions, model, expData, experiments); % Simulates the experiments.
+        [sim,~,~, maxcAMP]=SimulateExperiments(params(i,:), 0:1:tend, intialconditions, model, expData, experiments); % Simulates the experiments.
         
+        sim_valuesStates=sim.States;
+        idxTime = ismember(sim{'Time','Measures'}, 15*60);
+        
+        if any(idxTime)
+            idxAdi = 4;
+            idxCL = strcmp(sim.Properties.RowNames,'CL_ATP');
+            sim_valuesStates(1:end-1,:,idxAdi)=sim_valuesStates(1:end-1,:,idxAdi)./sim_valuesStates(idxCL,idxTime,idxAdi);
+        end
         if i == 1
             minValues=sim.Measures;
             maxValues=minValues;
             
-            minValuesStates=sim.States;
+            minValuesStates=sim_valuesStates;
             maxValuesStates=minValuesStates;
         end
         if maxcAMP<inf
@@ -294,7 +345,7 @@ for i = 1 : size(params,1)
             minValues(minValues>sim_values)=sim_values(minValues>sim_values);
             maxValues(maxValues<sim_values)=sim_values(maxValues<sim_values);
             
-            sim_valuesStates=sim.States;
+            
             minValuesStates(minValuesStates>sim_valuesStates)=sim_valuesStates(minValuesStates>sim_valuesStates);
             maxValuesStates(maxValuesStates<sim_valuesStates)=sim_valuesStates(maxValuesStates<sim_valuesStates);
         end

@@ -37,7 +37,7 @@ simulatedExperiments=table(nan(height(experiments),length(simTimes)),'VariableNa
 simulatedExperiments.PeakTime=nan(height(simulatedExperiments),1);
 maxcAMP=-1;
 cAMPInd=strcmp(stateNames,'cAMP');
-statesInd=ismember(stateNames,{'Bact','cAMP','Rel'});
+statesInd=ismember(stateNames,{'Adiponectin','Bact','cAMP','Rel'});
 %% Simulate experiments
     simulatedExperiments.States=nan(height(experiments), length(times), sum(statesInd));
 

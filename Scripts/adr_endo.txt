@@ -16,6 +16,7 @@ d/dt(Res) = 0
 d/dt(Rel)= vRes_Rel - vRel_PM + vPM_Rel
 d/dt(PM)= vRel_PM - vPM_Rel - vPM
 d/dt(Endo)=vCa_Endo-vEndo
+d/dt(Adiponectin)=vPM
 
 d/dt(pipCa) = - vPip_Ca*Vcell/Vpip
 d/dt(pipATP) = - vPip_ATP*Vcell/Vpip
@@ -33,6 +34,7 @@ Res(0)= 99
 Rel(0)= 1
 PM(0)= 0
 Endo(0)=0
+Adiponectin(0)=0
 
 pipCa(0)=0
 pipATP(0)=0

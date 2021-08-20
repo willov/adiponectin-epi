@@ -1,6 +1,6 @@
 function [model, expData, estimation, validation, dgf, pNames, nParams, lb, ub]=Init(modelName, toEstimateOn, toValidateOn)
 if ~exist('IQMsimulate','file')
-    fprintf('\n\nTo use these scripts, a valid c-compiler is necessary. \nIf things fail, check if MATLAB is registering a valid compiler with the command "mex -setup"\n\nThe toolbox and modell will now be compiled. \nPress any key to continue.\n')
+    fprintf('\n\nTo use these scripts, a valid c-compiler is necessary. \nIf things fail, check if MATLAB is registering a valid compiler with the command "mex -setup"\n\nThe toolbox and modell will now be compiled. \nPress enter to continue.\n')
     pause;
     run('./Support/IQM Tools/installIQMtoolsInitial.m')
 end
